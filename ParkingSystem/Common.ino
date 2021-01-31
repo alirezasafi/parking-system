@@ -18,6 +18,25 @@ String time_now(){
   return "12:00:00";
 }
 
-String getnerate_password(){
-  return "000000";
+String generate_password(){
+  randomSeed(random(0, 1000));
+  long password = random(100000, 999999);
+  return String(password);
+}
+
+int cost_calculation(String s_time, String e_time){
+  return 0;
+}
+
+void manual_inputs(){
+  save_car("12 b 222");
+  delay(5000);
+  save_car("12 b 122");
+  delay(5000);
+  exit_car("12 b 222", "163264");
+  delay(5000);
+  save_car("12 b 322");
+  delay(5000);
+  
+  
 }

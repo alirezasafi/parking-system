@@ -11,15 +11,17 @@ void setup() {
     ; // wait for serial port to connect. Needed for native USB port only
   }
   Serial1.println("Initializing LCD ...");
-  delay(1000);
+  lcd_begin();
+  delay(2000);
+  lcd_clear();
   
   Serial1.println("Initializing SD card...");
   initialize_sd_card();
-  //generate_samples();
   delay(1000);
   
   Serial1.println("initialization done.");
- 
+
+  manual_inputs();
 }
 
 void loop() {

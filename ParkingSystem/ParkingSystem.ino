@@ -14,6 +14,8 @@ void setup() {
   delay(1000);
   
   Serial1.println("Initializing SD card...");
+  initialize_sd_card();
+  //generate_samples();
   delay(1000);
   
   Serial1.println("initialization done.");
@@ -22,5 +24,5 @@ void setup() {
 
 void loop() {
 	
-	checkPassword("1234");
+	//checkPassword("1234");
 }

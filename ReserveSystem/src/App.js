@@ -26,7 +26,7 @@ class App extends Component {
                 showConfirmButton: true,
             })
 
-        } else if (response.status === 400) {
+        } else if (response.status === 400 && response.data.message === 'Bad request') {
             Swal.fire({
                 position: 'center',
                 icon: 'error',
@@ -44,7 +44,7 @@ class App extends Component {
             Swal.fire({
                 position: 'center',
                 icon: 'warning',
-                title: 'لطفا دقایقی دیگر تلاش نمایید.',
+                title: 'پلاک را به درستی وارد نمایید.',
                 showConfirmButton: true,
             })
         }
@@ -52,18 +52,10 @@ class App extends Component {
 
 
     handleChange = (name, e) => {
+        const value = e.target.value;
         this.setState(prevState => {
             const newState = {...prevState};
-            if
-            (name === 'firstSection' && this.state.firstSection.length <= 1) {
-                newState[name] = e.target.value;
-            } else if (name === 'secondSection' && this.state.secondSection.length <= 0) {
-                newState[name] = e.target.value;
-            } else if (name === 'thirdSection' && this.state.thirdSection.length <= 2) {
-                newState[name] = e.target.value;
-            } else if (name === 'forthSection' && this.state.forthSection.length <= 1) {
-                newState[name] = e.target.value;
-            }
+            newState[name] = value;
             return newState;
         });
     };

@@ -9,26 +9,44 @@ import Swal from "sweetalert2";
 class App extends Component {
 
     state = {
-        carID: null,
-        firstSection: null,
-        secondSection: null,
-        thirdSection: null,
-        forthSection: null,
+        firstSection: '',
+        secondSection: '',
+        thirdSection: '',
+        forthSection: '',
     }
 
     async reserveCar() {
         const id = this.state.firstSection + this.state.secondSection + this.state.thirdSection;
         const response = await ReserveApi.reserveCar(id);
-        if(response.ok) {
+        if (response.status === 201) {
             Swal.fire({
                 position: 'center',
-                type: 'success',
-                title: 'موفق',
+                icon: 'success',
+                title: `محل رزرو شده شما شماره ${response.data.place}  می‌باشد.`,
                 showConfirmButton: true,
             })
 
-        }else{
-            console.log("not fetched!")
+        } else if (response.status === 400) {
+            Swal.fire({
+                position: 'center',
+                icon: 'error',
+                title: 'این شماره قبلا رزرو داشته است.',
+                showConfirmButton: true,
+            })
+        } else if (response.status === 500) {
+            Swal.fire({
+                position: 'center',
+                icon: 'warning',
+                title: 'لطفا دقایقی دیگر تلاش نمایید.',
+                showConfirmButton: true,
+            })
+        } else {
+            Swal.fire({
+                position: 'center',
+                icon: 'warning',
+                title: 'لطفا دقایقی دیگر تلاش نمایید.',
+                showConfirmButton: true,
+            })
         }
     }
 
@@ -36,7 +54,16 @@ class App extends Component {
     handleChange = (name, e) => {
         this.setState(prevState => {
             const newState = {...prevState};
-            newState[name] = e.target.value;
+            if
+            (name === 'firstSection' && this.state.firstSection.length <= 1) {
+                newState[name] = e.target.value;
+            } else if (name === 'secondSection' && this.state.secondSection.length <= 0) {
+                newState[name] = e.target.value;
+            } else if (name === 'thirdSection' && this.state.thirdSection.length <= 2) {
+                newState[name] = e.target.value;
+            } else if (name === 'forthSection' && this.state.forthSection.length <= 1) {
+                newState[name] = e.target.value;
+            }
             return newState;
         });
     };
@@ -51,7 +78,7 @@ class App extends Component {
                     <Navbar.Toggle/>
                     <Navbar.Collapse className="justify-content-end">
                         <Navbar.Text className="header-texts">
-                            سیستم پارکینگ
+                            سیستم رزرو جای پارکینگ
                         </Navbar.Text>
                     </Navbar.Collapse>
                 </Navbar>
@@ -67,6 +94,7 @@ class App extends Component {
                             <InputGroup className="mb-3 iransans-font">
                                 <FormControl
                                     placeholder="12"
+                                    value={this.state.firstSection}
                                     onChange={(value) => this.handleChange('firstSection', value)}
                                 />
                             </InputGroup>
@@ -75,6 +103,7 @@ class App extends Component {
                             <InputGroup className="mb-3 iransans-font">
                                 <FormControl
                                     placeholder="ب"
+                                    value={this.state.secondSection}
                                     onChange={(value) => this.handleChange('secondSection', value)}
                                 />
                             </InputGroup>
@@ -83,6 +112,7 @@ class App extends Component {
                             <InputGroup className="mb-3 iransans-font">
                                 <FormControl
                                     placeholder="365"
+                                    value={this.state.thirdSection}
                                     onChange={(value) => this.handleChange('thirdSection', value)}
                                 />
                             </InputGroup>
@@ -96,6 +126,7 @@ class App extends Component {
                             <InputGroup className="mb-3 iransans-font">
                                 <FormControl
                                     placeholder="11"
+                                    value={this.state.forthSection}
                                     onChange={(value) => this.handleChange('forthSection', value)}
                                 />
                             </InputGroup>
@@ -103,10 +134,10 @@ class App extends Component {
                     </Row>
                     <Row className="justify-content-center align-items-center">
                         <Button disabled={
-                            !this.state.firstSection
-                            || !this.state.secondSection
-                            || !this.state.thirdSection
-                            || !this.state.forthSection
+                            this.state.firstSection.length === 0
+                            || this.state.secondSection.length === 0
+                            || this.state.thirdSection.length === 0
+                            || this.state.forthSection.length === 0
                         } onClick={() => this.reserveCar()} variant="warning"
                                 className="reserve-button">رزرو</Button>
                     </Row>

@@ -4,10 +4,10 @@ class ReserveApi {
     static async reserveCar(carId){
         try{
             const body = {
-                carID : carId,
+                car_id : carId,
             }
             const response = await axios.post(
-                "",
+                "http://192.168.1.5/reserve/",
                 body
             )
             if(response) return response;

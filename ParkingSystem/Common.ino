@@ -37,6 +37,4 @@ void manual_inputs(){
   delay(5000);
   save_car("12 b 322");
   delay(5000);
-  
-  
 }

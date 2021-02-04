@@ -5,9 +5,11 @@ int chipSelect = 53;
 File samplesFile;
 File carsFile;
 File carsFileTemp;
+File reservedCars;
 
 String samplesFileName = "samples.txt";
 String carsFileName = "cars.txt";
+String reservedCarsFileName = "reserved.txt";
 String carsFileTempName = "temp.txt";
 
 const int parkingCapacity = 10;
@@ -25,8 +27,10 @@ int initialize_sd_card(){
   }
   // clear cars details file.
   remove_file(carsFileName);
+  remove_file(reservedCarsFileName);
   // write header
   write_to_cars_file("Car,Password,Time,Place");
+  write_to_reserved_file("Car,Place");
 }
 
 int take_place(){
@@ -39,18 +43,37 @@ int take_place(){
   return -1;
   
 }
-void save_car(String carNumber){
+int reserve_car(String carNumber){
+  int place = is_reserved_car(carNumber);
+  if (place == -1){
+    place = take_place();
+    if (place == -1){
+      Serial1.println("error: all the places are occupied.");
+      return -1;
+    }
+  }
+  else {
+    return -1;
+  }
+  // save car record in text file.
+  Serial1.println("successfully reserved.");
+  write_to_reserved_file(carNumber + "," + String(place));
+  return place;
+}
+bool save_car(String carNumber){
   // check the car was registered or not.
   if (is_saved_car(carNumber, false) == "1"){
     Serial1.println("error: this car already registered.");
-    return;
+    return false;
   }
-
   // find a place. if capacity is full print error.
-  int place = take_place();
+  int place = is_reserved_car(carNumber);
   if (place == -1){
-    Serial1.println("error: all the places are occupied.");
-    return;
+    place = take_place();
+    if (place == -1){
+      Serial1.println("error: all the places are occupied.");
+      return false;
+    }
   }
   
   // save car record in text file.
@@ -63,6 +86,7 @@ void save_car(String carNumber){
   lcd_print("place: " + String(place));
   lcd_set_cursor(0,1);
   lcd_print("password: "+ password);
+  return true;
 }
 
 void exit_car(String carNumber, String password){
@@ -187,6 +211,23 @@ String is_saved_car(String carNumber, bool return_record){
   return "-1";
 }
 
+int is_reserved_car(String carNumber){
+  reservedCars = SD.open(reservedCarsFileName);
+  if (reservedCars){
+    while(reservedCars.available()){
+      String carRecord = reservedCars.readStringUntil('\n');
+      if (carNumber.equals(split(carRecord, ',', 0)) == 1){
+        return split(carRecord, ',', 1).toInt();
+      }
+    }
+    reservedCars.close();
+  }
+  else {
+    Serial1.println("error: can't open reserved file ...");
+  }
+  return -1;
+}
+
 void write_to_cars_file(String str){
   // write a string in the cars.txt.
   
@@ -198,6 +239,19 @@ void write_to_cars_file(String str){
   }
   else {
     Serial1.println("error: can't open cars file ...");
+  }
+}
+void write_to_reserved_file(String str){
+  // write to reserved file
+  
+  reservedCars = SD.open(reservedCarsFileName, FILE_WRITE);
+  if (reservedCars){
+    //Serial1.println("Writing to reserved file ...");
+    reservedCars.println(str);
+    reservedCars.close();
+  }
+  else {
+    Serial1.println("error: can't open reserved file ...");
   }
 }
 

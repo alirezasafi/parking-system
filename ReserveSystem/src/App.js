@@ -26,7 +26,7 @@ class App extends Component {
                 showConfirmButton: true,
             })
 
-        } else if (response.status === 400 && response.data.message === 'Bad request') {
+        } else if (response.status === 400 && response.data.message) {
             Swal.fire({
                 position: 'center',
                 icon: 'error',

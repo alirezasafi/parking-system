@@ -1,6 +1,6 @@
 #include <stdbool.h>
 #include <ArduinoJson.h>
-#define buzz 29
+#define buzz A1
 
 StaticJsonDocument<200> JSON_Packet;
 String inputString = "";
@@ -17,6 +17,10 @@ void setup() {
     ; // wait for serial port to connect. Needed for native USB port only
   }
   inputString.reserve(200);
+
+  // enter and exit interupt.
+  attachInterrupt(digitalPinToInterrupt(2), EnterInterrupt, RISING);
+  attachInterrupt(digitalPinToInterrupt(3), ExitInterrupt, RISING);
   
   Serial1.println("Initializing LCD ...");
   lcd_begin();
@@ -25,6 +29,7 @@ void setup() {
   
   Serial1.println("Initializing SD card...");
   initialize_sd_card();
+  generate_samples();
   delay(1000);
 
   Serial1.println("initialization done.");
@@ -34,6 +39,14 @@ void setup() {
 }
 
 void loop() {
+  if (buzz_enabled()){
+    buzzing();
+  }
+  if (password_getting()){
+    char key = keypad_get_key();
+    Serial1.print(key);
+    keypad_controller(key);
+  }
   
   if(stringComplete) {
     DeserializationError error = deserializeJson(JSON_Packet, inputString);
@@ -78,4 +91,10 @@ void serialEvent() {
       stringComplete = true;
     }
   }
+}
+void buzzing(){
+  digitalWrite(buzz, HIGH);
+  delay(500);  
+  digitalWrite(buzz, LOW);
+  delay(500); 
 }

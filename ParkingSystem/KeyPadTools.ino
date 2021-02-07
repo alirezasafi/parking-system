@@ -14,15 +14,35 @@ byte rowPins[ROWS] = {22, 23, 24, 25}; //connect to the row pinouts of the keypa
 byte colPins[COLS] = {26, 27, 28}; //connect to the column pinouts of the keypad
 
 String inputPass = "";
+int inputPassCounter = 0;
 int passwordAttempt = 0;
 
 Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
-  
+String inputKeys = "";
 char keypad_get_key(){
   char key = keypad.getKey();
   return key;
 }
-
+void keypad_controller(char key){
+  if (inputKeys == ""){
+    lcd_clear();
+  }
+  if (key && key != '*' && key != '#'){
+    inputPassCounter += 1;
+    inputKeys += key;
+    lcd_print_char(key);
+  }
+  else if (key == '#'){
+    Serial1.println();
+    inputKeys = "";
+    lcd_clear();
+  }
+  else if (key == '*'){
+    Serial1.println();
+    compare_password(inputKeys, inputPassCounter);
+    inputKeys = "";
+  }
+}
 int checkPassword(String password) {
   
   char customKey = keypad_get_key();

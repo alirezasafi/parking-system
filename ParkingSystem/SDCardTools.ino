@@ -89,7 +89,7 @@ bool save_car(String carNumber){
   return true;
 }
 
-void exit_car(String carNumber, String password){
+bool exit_car(String carNumber, String password){
   lcd_clear();
   String carInfo = is_saved_car(carNumber, true);
 
@@ -97,21 +97,30 @@ void exit_car(String carNumber, String password){
   if (carInfo == "-1"){
     Serial1.print(carNumber);
     Serial1.println(" Not found.");
-    return;
+    return false;
   }
   
   // authenticate password.
   if (password.equals(split(carInfo, ',', 1)) == 0){
     Serial1.println("error: password is incorrect.");
-    lcd_print("password is incorrect.");
-    return;
+    lcd_print("incorrect.");
+    delay(2000);
+    return false;
   }
-  
+
   // cost calculation and print in the lcd.
   String s_time = split(carInfo, ',', 2);
   String e_time = time_now();
   int cost = cost_calculation(s_time, e_time);
-
+  
+  if (is_reserved_car(carNumber) != -1){
+    cost = apply_reservation_cost(cost);
+  }
+  
+  lcd_print("correct.");
+  lcd_set_cursor(0,1);
+  lcd_print("cost: " + String(cost));
+  
   // revoke the occupied place 
   int place = split(carInfo, ',', 3).toInt();
   revoke_place(place);
@@ -120,9 +129,11 @@ void exit_car(String carNumber, String password){
   bool removed = delete_car(carNumber);
   if (removed == true){
     Serial1.println("car successfully removed.");
+    return true;
   }
   else {
     Serial1.println("failed to remove.");
+    return false;
   }
 }
 
@@ -266,8 +277,8 @@ void generate_samples(){
     samplesFile = SD.open(samplesFileName, FILE_WRITE);
     if (samplesFile) {
       Serial1.println("Writing sample data to samples.txt...");
-      char *nums[] = {"12 b 810", "77 x 120", "10 k 901", "48 k 710"};
-      for (int i = 0; i<4; i++){
+      char *nums[] = {"12 ب 810", "77 س 120", "10 ص 901", "48 ق 710", "50 د 202"};
+      for (int i = 0; i<5; i++){
         samplesFile.println(nums[i]);    
       }
      
@@ -277,4 +288,23 @@ void generate_samples(){
       Serial1.println("error opening samples.txt");
     }
   }
+}
+
+String get_car_from_samples(int n){
+  int counter = 1;
+  samplesFile = SD.open(samplesFileName);
+  if (samplesFile){
+    while(samplesFile.available()){
+      String carnumber = samplesFile.readStringUntil('\n');
+      if (counter == n){
+        return carnumber; 
+      }
+      counter += 1;
+    }
+    samplesFile.close();
+  }
+  else {
+    Serial1.println("error: can't open samples file ...");
+  }
+  return "";
 }

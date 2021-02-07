@@ -21,6 +21,9 @@ void lcd_println(String str){
   lcd.println(str);
 }
 
+void lcd_print_char(char str){
+  lcd.print(str);
+}
 void lcd_set_cursor(int x, int y){
   lcd.setCursor(x,y);
 }

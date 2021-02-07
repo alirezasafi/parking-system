@@ -1,5 +1,9 @@
 #include <stdbool.h>
 #include <ArduinoJson.h>
+#include <Wire.h>
+#include <TimeLib.h>
+#include <DS1307RTC.h>
+
 #define buzz A1
 
 StaticJsonDocument<200> JSON_Packet;
@@ -33,7 +37,6 @@ void setup() {
   delay(1000);
 
   Serial1.println("initialization done.");
-  
   //manual_inputs();
   
 }

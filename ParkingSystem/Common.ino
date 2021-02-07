@@ -21,7 +21,23 @@ String split(String data, char separator, int index)
 }
 
 String time_now(){
-  return "12:00:00";
+  tmElements_t tm;
+  String time_str = "";
+  if (RTC.read(tm)) {
+    Serial1.print("Ok, Time = ");
+    time_str = String(tm.Hour) +":"+ String(tm.Minute) +":"+ String(tm.Second);
+    Serial1.println(time_str);  
+  } else {
+    if (RTC.chipPresent()) {
+      Serial1.println("The DS1307 is stopped.  Please run the SetTime");
+      Serial1.println("example to initialize the time and begin running.");
+      Serial1.println();
+    } else {
+      Serial1.println("DS1307 read error!  Please check the circuitry.");
+      Serial1.println();
+    }
+  }
+  return time_str;
 }
 
 String generate_password(){
@@ -31,7 +47,13 @@ String generate_password(){
 }
 
 int cost_calculation(String s_time, String e_time){
-  return 0;
+  int s_h = split(s_time, ':', 0).toInt();
+  int s_m = split(s_time, ':', 1).toInt();
+  int e_h = split(e_time, ':', 0).toInt();
+  int e_m = split(e_time, ':', 1).toInt();
+  int mindiff = 60 + e_m - s_m;
+  int hr_diff = ((mindiff/60) - 1) + e_h - s_h;
+  return  hr_diff * 1000;
 }
 
 int apply_reservation_cost(int cost){
